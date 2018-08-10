@@ -81,6 +81,7 @@
 
 ;; js-comint for javascript repl
 (require 'js-comint)
+(setq inferior-js-program-command "C:/Program Files/nodejs/node.exe")
 
 ;; use GLSL mode for proper filetypes
 (autoload 'glsl-mode "glsl-mode" nil t)
