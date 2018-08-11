@@ -1,48 +1,4 @@
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(ansi-color-faces-vector
-   [default default default italic underline success warning error])
- '(ansi-color-names-vector
-   ["black" "#d55e00" "#009e73" "#f8ec59" "#0072b2" "#cc79a7" "#56b4e9" "white"])
- '(cua-mode t nil (cua-base))
- '(custom-enabled-themes (quote (borland-blue)))
- '(custom-safe-themes
-   (quote
-    ("02199888a97767d7779269a39ba2e641d77661b31b3b8dd494b1a7250d1c8dc1" "b486c4c5f8597e0b8401bc960cc878151a335d20e052ba3c9da27f12881877a2" "b825687675ea2644d1c017f246077cdd725d4326a1c11d84871308573d019f67" "5dd70fe6b64f3278d5b9ad3ff8f709b5e15cd153b0377d840c5281c352e8ccce" "1aad0f86167806e27b9267ccca814ee0b2f623cfef32422f1ea0e5d3f3dd7650" default)))
- '(fringe-mode 6 nil (fringe))
- '(inhibit-startup-screen t)
- '(linum-format " %7d ")
- '(org-support-shift-select t)
- '(package-selected-packages
-   (quote
-    (js-comint company omnisharp org quasi-monochrome-theme purple-haze-theme borland-blue-theme magit paredit smartparens ac-slime auto-complete)))
- '(show-paren-mode t))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(default ((t (:family "Ricty" :foundry "outline" :slant normal :weight normal :height 120 :width normal)))))
-
-;; set margin widths
-(setq-default left-margin-width 0 right-margin-width 0)
-
-;; make backup to a designated dir, mirroring the full path
-(defun my-backup-file-name (fpath)
-  "Return a new file path of a given file path.
-   If the new path's directories does not exist, create them."
-  (let* ((backupRootDir "~/.emacs.d/emacs-backup/")
-         (filePath (replace-regexp-in-string "[A-Za-z]:" "" fpath )) ; remove Windows driver letter in path, for example, "C:"
-         (backupFilePath (replace-regexp-in-string "//" "/" (concat backupRootDir filePath "~"))))
-    (make-directory (file-name-directory backupFilePath) (file-name-directory backupFilePath))
-    backupFilePath))
-
-(setq make-backup-file-name-function 'my-backup-file-name)
-
-;; MELPA packaging
+;;; MELPA packaging
 (require 'package)
 (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
                     (not (gnutls-available-p))))
@@ -55,6 +11,7 @@
     (add-to-list 'package-archives '("gnu" . (concat proto "://elpa.gnu.org/packages/")))))
 (package-initialize)
 
+;;; LISP
 ;; SLIME
 (require 'slime)
 (add-to-list 'slime-contribs 'slime-repl)
@@ -79,10 +36,35 @@
 (add-hook 'lisp-interaction-mode-hook #'enable-paredit-mode)
 (add-hook 'scheme-mode-hook           #'enable-paredit-mode)
 
+
+;;; C Languages
+(defun indent-the-way-i-like-please ()
+  (c-set-offset 'case-label '+))
+
+;; c-mode-common-hook is for all languages supported by CC-mode
+;; c++-mode-hook, java-mode-hook, c-mode-hook are other options
+(add-hook 'c-mode-common-hook 'indent-the-way-i-like-please)
+
+
+;;; Javascript
+;; js2-mode as default javascript mode
+(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+
 ;; js-comint for javascript repl
 (require 'js-comint)
-(setq inferior-js-program-command "C:/Program Files/nodejs/node.exe")
+(setq inferior-js-program-command "C:\\Program Files\\nodejs\\node.exe")
 
+; evaluation key combos
+(add-hook 'js2-mode-hook
+          (lambda ()
+            (local-set-key (kbd "C-x C-e") 'js-send-last-sexp)
+            (local-set-key (kbd "C-M-x") 'js-send-last-sexp-and-go)
+            (local-set-key (kbd "C-c b") 'js-send-buffer)
+            (local-set-key (kbd "C-c C-b") 'js-send-buffer-and-go)
+            (local-set-key (kbd "C-c l") 'js-load-file-and-go)))
+
+
+;;; GLSL
 ;; use GLSL mode for proper filetypes
 (autoload 'glsl-mode "glsl-mode" nil t)
 (add-to-list 'auto-mode-alist '("\\.glsl\\'" . glsl-mode))
@@ -90,11 +72,14 @@
 (add-to-list 'auto-mode-alist '("\\.frag\\'" . glsl-mode))
 (add-to-list 'auto-mode-alist '("\\.geom\\'" . glsl-mode))
 
+
+;;; C#
 ;; use omnisharp for C# intellisense
 (add-hook 'csharp-mode-hook 'omnisharp-mode)
 ;; server can alternatively be started manually with M-x omnisharp-start-omnisharp-server
 
-;; Org Mode
+
+;;; Org Mode
 (require 'org)
 (define-key global-map "\C-cl" 'org-store-link)
 (define-key global-map "\C-ca" 'org-agenda)
@@ -106,22 +91,60 @@
                              (python . t)
                              (js . t)))
 
+
+;;; General
 ;; don't use tabs for indentation
 (setq-default indent-tabs-mode nil)
 
-;; does this even work?
+;; set margin widths
+(setq-default left-margin-width 0 right-margin-width 0)
+
+;; make backup to a designated dir, mirroring the full path
+(defun my-backup-file-name (fpath)
+  "Return a new file path of a given file path.
+   If the new path's directories does not exist, create them."
+  (let* ((backupRootDir "~/.emacs.d/emacs-backup/")
+         (filePath (replace-regexp-in-string "[A-Za-z]:" "" fpath )) ; remove Windows driver letter in path, for example, "C:"
+         (backupFilePath (replace-regexp-in-string "//" "/" (concat backupRootDir filePath "~"))))
+    (make-directory (file-name-directory backupFilePath) (file-name-directory backupFilePath))
+    backupFilePath))
+
+(setq make-backup-file-name-function 'my-backup-file-name)
+
+; does this even work?
 (setq-default default-directory "C:\\Users\\user0\\")
 (put 'dired-find-alternate-file 'disabled nil)
 
-;; Note that c-mode-hook runs for C source files only
-;; use c++-mode-hook for C++ sources, java-mode-hook for Java sources, etc.
-;; If you want the same customizations to be in effect in all languages supported by cc-mode
-;; use c-mode-common-hook.
-(defun indent-the-way-i-like-please ()
-  (c-set-offset 'case-label '+))
-
-(add-hook 'c-mode-common-hook 'indent-the-way-i-like-please)
-
+; don't think this line works
 (setq explicit-shell-file-name "C:\\msys64\\usr\\bin\\bash.exe")
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(ansi-color-faces-vector
+   [default default default italic underline success warning error])
+ '(ansi-color-names-vector
+   ["black" "#d55e00" "#009e73" "#f8ec59" "#0072b2" "#cc79a7" "#56b4e9" "white"])
+ '(cua-mode t nil (cua-base))
+ '(custom-enabled-themes (quote (borland-blue)))
+ '(custom-safe-themes
+   (quote
+    ("02199888a97767d7779269a39ba2e641d77661b31b3b8dd494b1a7250d1c8dc1" "b486c4c5f8597e0b8401bc960cc878151a335d20e052ba3c9da27f12881877a2" "b825687675ea2644d1c017f246077cdd725d4326a1c11d84871308573d019f67" "5dd70fe6b64f3278d5b9ad3ff8f709b5e15cd153b0377d840c5281c352e8ccce" "1aad0f86167806e27b9267ccca814ee0b2f623cfef32422f1ea0e5d3f3dd7650" default)))
+ '(fringe-mode 6 nil (fringe))
+ '(inhibit-startup-screen t)
+ '(linum-format " %7d ")
+ '(org-support-shift-select t)
+ '(package-selected-packages
+   (quote
+    (js2-mode js-comint company omnisharp org quasi-monochrome-theme purple-haze-theme borland-blue-theme magit paredit smartparens ac-slime auto-complete)))
+ '(show-paren-mode t))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(default ((t (:family "Ricty" :foundry "outline" :slant normal :weight normal :height 120 :width normal)))))
