@@ -1,7 +1,4 @@
-;;backup file location
-(setq backup-directory-alist `(("." . "~/.emacs.d/backups/")))
-
-;; MELPA package repository stuff
+;;; MELPA & package
 (require 'package)
 (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
                     (not (gnutls-available-p))))
@@ -14,10 +11,9 @@
     (add-to-list 'package-archives '("gnu" . (concat proto "://elpa.gnu.org/packages/")))))
 (package-initialize)
 
-;; package-initialize needs to come before the org mode stuff
-;; so that the elpa version of org is loaded instead of the default (old) version
 
-;;enable org mode
+;;; ORG mode
+;; after package-initialize
 (require 'org)
 (define-key global-map "\C-cl" 'org-store-link)
 (define-key global-map "\C-ca" 'org-agenda)
@@ -30,10 +26,8 @@
    (js . t)
    (python . t)))
 
-;;enable image+
-(eval-after-load 'image '(require 'image+))
-(eval-after-load 'image+ '(imagex-auto-adjust-mode 1))
 
+;;; LISP
 (autoload 'enable-paredit-mode "paredit" "Turn on pseudo-structural editing of Lisp code." t)
 (add-hook 'emacs-lisp-mode-hook       #'enable-paredit-mode)
 (add-hook 'eval-expression-minibuffer-setup-hook #'enable-paredit-mode)
@@ -46,6 +40,32 @@
 (setq inferior-lisp-program "/usr/bin/sbcl")
 (setq slime-contribs '(slime-fancy))
 
+
+;;; Javascript
+(require 'js2-mode)
+(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+
+(require 'js-comint)
+
+(add-hook 'js2-mode-hook
+          (lambda ()
+            (local-set-key (kbd "C-x C-e") 'js-send-last-sexp)
+            (local-set-key (kbd "C-M-x") 'js-send-last-sexp-and-go)
+            (local-set-key (kbd "C-c b") 'js-send-buffer)
+            (local-set-key (kbd "C-c C-b") 'js-send-buffer-and-go)
+            (local-set-key (kbd "C-c l") 'js-load-file-and-go)))
+
+
+;;; General
+;; backup file location
+(setq backup-directory-alist `(("." . "~/.emacs.d/backups/")))
+
+;; enable image+
+(eval-after-load 'image '(require 'image+))
+(eval-after-load 'image+ '(imagex-auto-adjust-mode 1))
+
+
+;;; Custom
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -62,8 +82,9 @@
     ("#ba8baf" . "#b8b8b8")
     ("#86c1b9" . "#d8d8d8")
     ("#ffffff" . "#ffffff")])
+ '(column-number-mode t)
  '(cua-mode t nil (cua-base))
- '(custom-enabled-themes (quote (misterioso)))
+ '(custom-enabled-themes (quote (borland-blue)))
  '(custom-safe-themes
    (quote
     ("02199888a97767d7779269a39ba2e641d77661b31b3b8dd494b1a7250d1c8dc1" "78559045fb299f3542c232166ad635c59cf0c6578d80a58b885deafe98a36c66" "38e66a2a20fa9a27af5ffc4f4dd54f69e3fef6b51be7b351e137b24958bfebd7" "e3fc83cdb5f9db0d0df205f5da89af76feda8c56d79a653a5d092c82c7447e02" "3d5720f488f2ed54dd4e40e9252da2912110948366a16aef503f3e9e7dfe4915" "5cd0afd0ca01648e1fff95a7a7f8abec925bd654915153fb39ee8e72a8b56a1f" default)))
@@ -90,6 +111,9 @@
  '(nrepl-message-colors
    (quote
     ("#336c6c" "#205070" "#0f2050" "#806080" "#401440" "#6c1f1c" "#6b400c" "#23733c")))
+ '(package-selected-packages
+   (quote
+    (js-comint exec-path-from-shell slime-theme slime paredit org magit intellij-theme image+ goose-theme faff-theme darcula-theme borland-blue-theme basic-theme anti-zenburn-theme)))
  '(pdf-view-midnight-colors (quote ("#232333" . "#c7c7c7")))
  '(show-paren-mode t)
  '(tool-bar-mode nil)
