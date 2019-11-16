@@ -19,6 +19,16 @@
 
 (setq graphics (display-graphic-p))
 
+(setq sbcl-loc "/usr/bin/sbcl")
+(when (eq current-os 'windows)
+  (setq sbcl-loc '("C:\\Program Files\\SBCL\\sbcl.exe"
+                   "--core"
+                   "C:\\Program Files\\SBCL\\sbcl.core")))
+
+(setq node-loc "/usr/bin/node")
+(when (eq current-os 'macos)
+  (setq node-loc "/usr/local/opt/node@10/bin/node"))
+
 ;;; General=====================================================
 ;; Paths
 (setq backup-directory-alist `(("." . "~/.emacs.d/backups/")))
@@ -80,7 +90,7 @@
   (add-to-list 'slime-contribs 'slime-repl)
   (add-hook 'lisp-mode-hook (lambda () (slime-mode t)))
   :custom
-  (inferior-lisp-program "/usr/bin/sbcl"))
+  (inferior-lisp-program sbcl-loc)) ; determined in Platform section
 
 (defun add-lisp-hook (lisp-mode-hooks hook)
   "Maps a hook to all lisp mode hooks"
@@ -124,7 +134,7 @@
 (use-package js-comint
   :ensure t
   :custom
-  (js-comint-program-command "/usr/local/opt/node@10/bin/node")
+  (js-comint-program-command node-loc) ; determined in Platform section
   (js-comint-program-arguments '("--experimental-repl-await"))
   :config
   (setenv "NODE_NO_READLINE" "1")) ; fixes prompt
@@ -140,6 +150,14 @@
               (local-set-key (kbd "C-c b") 'js-send-buffer)
               (local-set-key (kbd "C-c C-b") 'js-send-buffer-and-go)
               (local-set-key (kbd "C-c l") 'js-load-file-and-go))))
+
+;;; C Languages=================================================
+(defun indent-the-way-i-like-please ()
+  (c-set-offset 'case-label '+))
+
+;; c-mode-common-hook is for all languages supported by CC-mode
+;; c++-mode-hook, java-mode-hook, c-mode-hook are other options
+(add-hook 'c-mode-common-hook 'indent-the-way-i-like-please)
 
 ;;; Custom======================================================
 (setq custom-file "~/.emacs.d/custom.el")
