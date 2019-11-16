@@ -47,6 +47,9 @@
 (when (equal current-os 'macos)
   (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t)))
 
+(when (eq current-os 'linux)
+  (menu-bar-mode -1))
+
 ;; show full filepath of buffer in title
 (setq frame-title-format
       (list (format "%s %%S: %%j " (system-name))
