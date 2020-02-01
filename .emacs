@@ -42,6 +42,7 @@
 (electric-pair-mode 1)              ; pair brackets outside of paredit
 (column-number-mode 1)              ; show column num
 (global-auto-revert-mode 1)         ; refresh buffer when disk copy changes
+(defalias 'list-buffers 'ibuffer)   ; use ibuffer for listing
 
 ;; makes titlebar the same as theme background on OSX
 (when (equal current-os 'macos)
